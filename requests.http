@@ -1,0 +1,60 @@
+# Requests for your API, for the REST Client extension in VS Code.
+#
+# Install "REST Client" by Huachao Mao, start your server with npm start,
+# then click "Send Request" above any request below.
+
+@host = http://localhost:3000
+
+### the collection
+GET {{host}}/instructors
+
+### one department only
+GET {{host}}/instructors?dept=Physics
+
+### paging: the first three
+GET {{host}}/instructors?limit=3
+
+### paging: the next three
+GET {{host}}/instructors?limit=3&offset=3
+
+### too large a limit: the server decides, not the client
+GET {{host}}/instructors?limit=1000000
+
+### one member
+GET {{host}}/instructors/22222
+
+### one member that does not exist: expect 404
+GET {{host}}/instructors/99999
+
+### create one: expect 201 and a Location header
+POST {{host}}/instructors
+Content-Type: application/json
+
+{
+  "id": "99999",
+  "name": "Nobody",
+  "deptName": "Music",
+  "salary": 50000
+}
+
+### a bad body: expect 400
+POST {{host}}/instructors
+Content-Type: application/json
+
+{
+  "name": "Nobody"
+}
+
+### update the salary: expect 200
+PUT {{host}}/instructors/99999
+Content-Type: application/json
+
+{
+  "salary": 55000
+}
+
+### delete it again: expect 204
+DELETE {{host}}/instructors/99999
+
+### delete it once more: expect 404
+DELETE {{host}}/instructors/99999
