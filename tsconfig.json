@@ -7,13 +7,7 @@
     "outDir": "./dist",
     "strict": true,
     "sourceMap": true,
-    "types": [
-      "node",
-      "express",
-      "pg"
-    ]
+    "types": ["node", "pg"]
   },
-  "include": [
-    "src/**/*"
-  ]
+  "include": ["src/**/*"]
 }
