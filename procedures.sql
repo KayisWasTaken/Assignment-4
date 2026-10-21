@@ -58,21 +58,29 @@ $$;
 -- A procedure, not a function, because it exists to change things rather
 -- than to answer a question.
 
-CREATE OR REPLACE PROCEDURE enrol_student(
-  p_id varchar,
-  p_course_id varchar,
-  p_sec_id varchar,
-  p_semester varchar,
-  p_year numeric,
-  INOUT new_total numeric DEFAULT NULL)
-LANGUAGE plpgsql AS $$
+CREATE OR REPLACE PROCEDURE "public"."enrol_student"(IN "p_id" varchar, IN "p_course_id" varchar, IN "p_sec_id" varchar, IN "p_semester" varchar, IN "p_year" numeric, INOUT "new_total" numeric=NULL::numeric)
+ AS $BODY$
 DECLARE
   v_credits numeric;
 BEGIN
-  -- TODO
-  NULL;
+  SELECT c.credits INTO v_credits
+  FROM course c
+  WHERE c.course_id = p_course_id;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'No course with id %', p_course_id;
+  END IF;
+
+  INSERT INTO takes (id, course_id, sec_id, semester, year, grade)
+  VALUES (p_id, p_course_id, p_sec_id, p_semester, p_year, NULL);
+
+  UPDATE student
+  SET tot_cred = COALESCE(tot_cred, 0) + v_credits
+  WHERE id = p_id
+  RETURNING tot_cred INTO new_total;
 END;
-$$;
+$BODY$
+  LANGUAGE plpgsql
 
 -- Test it:
 --     CALL enrol_student('70557', 'CS-319', '1', 'Spring', 2018);

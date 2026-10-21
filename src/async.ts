@@ -42,13 +42,26 @@ export async function firstCourseTitle(studentId: string): Promise<string | unde
  * the difference visible, and on a real server the waiting is real.
  */
 export async function overviewSlowly(): Promise<Overview> {
-  // TODO
-  throw new Error('not implemented');
+  const students = await pool.query('SELECT pg_sleep(0.2), count(*)::int AS total FROM student');
+  const courses = await pool.query('SELECT pg_sleep(0.2), count(*)::int AS total FROM course');
+  const departments = await pool.query('SELECT pg_sleep(0.2), count(*)::int AS total FROM department');
+  return {
+    students: students.rows[0].total,
+    courses: courses.rows[0].total,
+    departments: departments.rows[0].total,
+  };
 }
 
 export async function overview(): Promise<Overview> {
-  // TODO
-  throw new Error('not implemented');
+  const [students, courses, departments] = await Promise.all([
+  pool.query('SELECT pg_sleep(0.2), count(*)::int AS total FROM student'),
+  pool.query('SELECT pg_sleep(0.2), count(*)::int AS total FROM course'),
+  pool.query('SELECT pg_sleep(0.2), count(*)::int AS total FROM department'),]);
+  return {
+    students: students.rows[0].total,
+    courses: courses.rows[0].total,
+    departments: departments.rows[0].total,
+  };
 }
 
 // --- C3. The forgotten await ----------------------------------------------

@@ -67,8 +67,9 @@ export async function studentsIn(deptName: string): Promise<Student[]> {
  *     SELECT ..., danish_grade(t.grade) AS grade
  */
 export async function coursesFor(studentId: string): Promise<CourseRow[]> {
-  // TODO
-  throw new Error('not implemented');
+   const { rows } = await pool.query
+   ('SELECT c.course_id as courseId, c.title, danish_grade(t.grade) AS grade FROM takes t JOIN course c on c.course_id = t.course_id WHERE t.id = $1 ORDER BY c.course_id', [studentId]);
+   return rows;
 }
 
 // --- A3. Aggregating ------------------------------------------------------
