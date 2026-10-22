@@ -80,20 +80,28 @@ export async function coursesFor(studentId: string): Promise<CourseRow[]> {
  * look at the type of what you get.
  */
 export async function studentsPerDepartment(): Promise<DeptCount[]> {
-  // TODO
-  throw new Error('not implemented');
+  const result = await pool.query<DeptCount>(
+    `SELECT dept_name AS "deptName", count(*)::int AS students
+     FROM student
+     GROUP BY dept_name
+     ORDER BY dept_name`,
+  );
+  return result.rows;
 }
 
 // --- A4. Writing ----------------------------------------------------------
 
-/** Stores a student and returns the row the database stored. */
 export async function insertStudent(student: Student): Promise<Student> {
-  // TODO
-  throw new Error('not implemented');
+  const result = await pool.query<Student>(
+    `INSERT INTO student (id, name, dept_name, tot_cred)
+     VALUES ($1, $2, $3, $4)
+     RETURNING id, name, dept_name AS "deptName", tot_cred::int AS "totCred"`,
+    [student.id, student.name, student.deptName, student.totCred],
+  );
+  return result.rows[0];
 }
-
-/** True when a row was deleted, false when there was nothing to delete. */
+ 
 export async function deleteStudent(id: string): Promise<boolean> {
-  // TODO
-  throw new Error('not implemented');
+  const result = await pool.query('DELETE FROM student WHERE id = $1', [id]);
+  return (result.rowCount ?? 0) > 0;
 }
