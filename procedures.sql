@@ -33,11 +33,15 @@ CREATE OR REPLACE FUNCTION student_transcript(p_id varchar)
 RETURNS TABLE (course_id varchar, title varchar, grade varchar)
 LANGUAGE plpgsql AS $$
 BEGIN
-  -- TODO: raise an exception when there is no such student
-
-  -- TODO: return the courses this student takes, with converted grades
-  --       RETURN QUERY SELECT ... ;
-  RETURN;
+  IF NOT EXISTS (SELECT 1 FROM student s WHERE s.id = p_id) THEN
+    RAISE EXCEPTION 'No student with id %', p_id;
+  END IF;
+  RETURN QUERY
+    SELECT t.course_id, c.title, danish_grade(t.grade)::varchar
+      FROM takes t
+      JOIN course c ON c.course_id = t.course_id
+     WHERE t.id = p_id
+     ORDER BY t.course_id;
 END;
 $$;
 
@@ -80,7 +84,7 @@ BEGIN
   RETURNING tot_cred INTO new_total;
 END;
 $BODY$
-  LANGUAGE plpgsql
+  LANGUAGE plpgsql;
 
 -- Test it:
 --     CALL enrol_student('70557', 'CS-319', '1', 'Spring', 2018);

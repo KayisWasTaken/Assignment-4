@@ -20,10 +20,12 @@ export interface TranscriptRow {
  * here as a rejected promise. Let it travel on: this one throws.
  */
 export async function transcriptOf(studentId: string): Promise<TranscriptRow[]> {
-  // TODO
-  throw new Error('not implemented');
+  const result = await pool.query<TranscriptRow>(
+    `SELECT course_id AS "courseId", title, grade
+       FROM student_transcript($1)`,
+    [studentId]);
+  return result.rows;
 }
-
 /**
  * The same, but undefined instead of an error when the student does not
  * exist.
@@ -34,8 +36,14 @@ export async function transcriptOf(studentId: string): Promise<TranscriptRow[]> 
  */
 export async function transcriptOrUndefined(
   studentId: string): Promise<TranscriptRow[] | undefined> {
-  // TODO
-  throw new Error('not implemented');
+  try {
+    return await transcriptOf(studentId);
+  } catch (err) {
+    if ((err as { code?: string }).code === 'P0001') {
+      return undefined;
+    }
+    throw err;
+  }
 }
 
 /**
@@ -56,3 +64,6 @@ semester: string, year: number): Promise<number> {
 
   return Number(rows[0].new_total);
 }
+
+// B3: TS version is easier to change and debug but more queries,
+// procedure is one call but logic ends up in 2 places. we'd keep it in TS

@@ -18,10 +18,19 @@ export interface Overview {
  * Two steps, the second needing the first. Handle a missing student with
  * try/catch or with a check, and say in a comment which you chose and why.
  */
+
+
+// We used a check, because findStudent just returns undefined when the
+// student doesn't exist, so no error to catch
 export async function firstCourseTitle(studentId: string): Promise<string | undefined> {
-  // TODO
-  throw new Error('not implemented');
+  const student = await findStudent(studentId);
+  if (student === undefined) {
+    return undefined;
+  }
+  const courses = await coursesFor(studentId);
+  return courses[0]?.title;
 }
+
 
 // --- C2. Steps that do not depend on each other ---------------------------
 
@@ -81,7 +90,7 @@ export async function removeAndCheckBroken(id: string): Promise<boolean> {
   const still = await findStudent(id);
   return still !== undefined;
 }
- 
+
 export async function removeAndCheck(id: string): Promise<boolean> {
   await deleteStudent(id);
   const still = await findStudent(id);
